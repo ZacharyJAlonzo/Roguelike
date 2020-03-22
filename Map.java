@@ -19,8 +19,19 @@ public class Map
    	 
    	 System.out.println();
    	 
-   	 MapDisplay y = new MapDisplay(x);
- 	 
+   	 Player p = new Player(x);
+   	 MapDisplay y = new MapDisplay(x,p);
+   	 
+   	 
+ 	 for(int i = 0; i< 50; i++)
+ 	 {
+ 	 	for(int k = 0; k < 50; k++)
+ 	 	{
+ 	 		System.out.print(x.getCells(0)[i][k].getObject().getDisplay());
+ 	 	}
+ 	 	System.out.println();
+ 	 }
+ 	 	
    	 
    	 
    }
