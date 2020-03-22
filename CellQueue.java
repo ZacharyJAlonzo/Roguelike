@@ -31,17 +31,27 @@ public class CellQueue
       
     public void pop()
     {
-    	contained[0] = null;
+    	if(contained[1] == null)
+    		return;
+    	else if(contained[0] == null) 
+    		contained[1] = null;
+    	else contained[0] = null;
     }
     
     public boolean push(RObject obj)
     {
-    	if(contained[0] == null)
+    	if(contained[1] == null)
+    	{
+    		contained[1] = obj;
+    		return true;
+    	}
+    	else if(contained[0] == null)
     	{
     		contained[0] = obj;
     		return true;
     	}
-    	else return false;    		
+    	System.out.println(contained[0].getDisplay() + " " + contained[1].getDisplay());
+    	return false;    		
     }
     ///////////////////////////////////
     

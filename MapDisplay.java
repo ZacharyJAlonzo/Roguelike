@@ -10,8 +10,10 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.*;
+import java.awt.*;
 
-public class MapDisplay 
+public class MapDisplay implements KeyListener
 {
 	
 	private JLayeredPane allWindows;
@@ -37,14 +39,15 @@ public class MapDisplay
 	private JTextArea display;
 	private JFrame frame;
 	
+	private Player player;
 	//entire map
 	private Tile map;
 	int currentDisplay;
 
-    public MapDisplay(Tile t)
+    public MapDisplay(Tile t, Player p)
     {
     	map = t;
-    	currentDisplay = 0;
+    	player = p;
     	
     	frame = new JFrame("map");
     	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -59,6 +62,7 @@ public class MapDisplay
 		allWindows.setBounds(0,0,1920,1080);
 		allWindows.setLayout(null);
 		frame.add(allWindows);
+		frame.addKeyListener(this);
 
     	  	
     	display = new JTextArea();
@@ -138,13 +142,63 @@ public class MapDisplay
 		 allWindows.add(logWindow);
 		
     	printTile();
-    	frame.repaint();   
+    	frame.repaint(); 
+    		
+		  
+    }
+    public void setPlayer(Player p)
+    {
+    	player = p;
+    }
+    
+    public void keyPressed(KeyEvent e)
+    {
+    	
+    	System.out.println("something");
+    	int key = e.getKeyCode();
+
+    	if (key == KeyEvent.VK_LEFT)
+    	{
+        	player.moveLeft();
+        	printTile();
+    	}
+
+    	if (key == KeyEvent.VK_RIGHT)
+    	{
+        	
+        	player.moveRight();
+        	printTile();
+    	}
+
+    	if (key == KeyEvent.VK_UP)
+    	{
+        	player.moveUp();
+        	printTile();
+    	}
+
+    	if (key == KeyEvent.VK_DOWN)
+    	{
+        	player.moveDown();
+        	printTile();
+    	}
+
+    }
+    
+    
+    public void keyReleased(KeyEvent e)
+    {
+    	
+    }
+    public void keyTyped(KeyEvent e)
+    {
+    	
     }
     
     
     public void printTile()
     {
-    	Cell[][] arr = map.getCells(currentDisplay);
+    	display.setText("");
+    	Cell[][] arr = map.getCells(player.getCurrentTile());
     	
     	String line = "";
     	

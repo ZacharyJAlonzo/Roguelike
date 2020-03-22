@@ -27,8 +27,8 @@ public class Cell
     	contained.pop();
     }
     
-    public void addObject(RObject obj)
+    public boolean addObject(RObject obj)
     {
-    	contained.push(obj);
+    	return contained.push(obj);
     }
 }

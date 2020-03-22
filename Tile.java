@@ -40,12 +40,12 @@ public class Tile
         generateCells();
         
         //the initial clean tends to open up the pathways. 
-        Clean();
+        //Clean();
         	
         for(int i = 0; i < 1; i++)
         	Generate();
 		
-		for(int j = 0; j < 1; j++)
+		//for(int j = 0; j < 1; j++)
         Clean();
         
         //sizes > 40 tend to have connectivity problems with only 1 final clean. have to obliterate it harder.
@@ -55,15 +55,24 @@ public class Tile
         else times = 2;
         
         
-        for(int k = 0; k < times; k++)
-        finalClean();
-        absoluteLastClean();    
+        for(int k =0; k < times+1; k++)    	
+        {
+        	finalClean();
+        	absoluteLastClean();       
+        }
+        //these method names ended up being pretty ironic
+        killTwoWallPairs();
+        absoluteLastClean();
     }     
     	
     	
     //Tile is used to generate terrain.
     
     /*Each tile is initially given a pattern.
+     *	# # #
+     *	# * * -- upper corner   
+     *	# * #
+     *
      *	# * #
      *	# * * -- path through North/South. Key = 3
      *	# * #
@@ -87,10 +96,21 @@ public class Tile
      //randomly assigns to a parallel array key values for generation.
      private void generateKeys()
      {
-     	for(int i = 0; i < 9; i++)
+     	/*for(int i = 0; i < 9; i++)
      	{     		    
      		keys[i] = (int)(Math.random()*4);   			
-     	}
+     	}*/
+     	
+     	//for testing
+     	keys[0] = 3;
+     	keys[1] = 1;
+     	keys[2] = 2;
+     	keys[3] = 3;
+     	keys[4] = 0;
+     	keys[5] = 2;
+     	keys[6] = 0;
+     	keys[7] = 0;
+     	keys[8] = 0;
      }
      
      /////////initial generation////////////    
@@ -308,8 +328,8 @@ public class Tile
  					
 			case 3:
 			{
-				//switch to pattern 1, 2, 3, 4, 5
-				int[] options = {1,2,3,4,5,11,12,13,14};
+				//switch to pattern 1, 2, 3, 4, 5, 11, 12, 13, 14
+				int[] options = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 				int changeCase = (int)(Math.random()*options.length);
 				//System.out.println(changeCase);
 				changeArr(patternList[options[changeCase]], jVal, mVal, i, k);
@@ -323,7 +343,8 @@ public class Tile
  				
  			case 8:
  			{
- 				int[] options = {1,2,4,8};
+ 				//1 ,2 ,4 ,8
+ 				int[] options = {1,2,3,9,10,11,12,13,14,15};
 				int changeCase = (int)(Math.random()*options.length);
 				//System.out.println(changeCase);
 				changeArr(patternList[options[changeCase]], jVal, mVal, i, k);
@@ -333,7 +354,8 @@ public class Tile
  			
  			case 4:
  			{
- 				int[] options = {0,1,2,4,8};
+ 				//0,1,2,4,8
+ 				int[] options = {1,2,3,4,5,6,7,8,9,10,11,12,13,14};
 				int changeCase = (int)(Math.random()*options.length);
 				//System.out.println(changeCase);
 				changeArr(patternList[options[changeCase]], jVal, mVal, i, k);
@@ -343,7 +365,8 @@ public class Tile
 
  			case 5:
  			{
- 				int[] options = {1,2,4,6,7,8,9};
+ 				//1,2,4,6,7,8,9
+ 				int[] options = {1,2,3,4,5,6,7,8,9,10,11,12,13,14};
 				int changeCase = (int)(Math.random()*options.length);
 				//System.out.println(changeCase);
 				changeArr(patternList[options[changeCase]], jVal, mVal, i, k);
@@ -358,7 +381,8 @@ public class Tile
  				
  			case 12:
  			{
- 				int[] options = {1,2,8,9,12,13,14,15}; 
+ 				//1,2,8,9,12,13,14
+ 				int[] options = {1,2,3,4,5,6,7,8,9,10,11,12,13,14}; 
 				
 				int changeCase = (int)(Math.random()*options.length);			
 				changeArr(patternList[options[changeCase]], jVal, mVal, i, k);
@@ -370,8 +394,8 @@ public class Tile
  				
  			case 13:
  			{
- 			
-				int[] options = {8,9,10,11,12,14,15}; 
+ 				//8,9,10,11,12,14
+				int[] options = {8,9,14,15}; 
 				
 				int changeCase = (int)(Math.random()*options.length);
 				//System.out.println(changeCase);
@@ -384,6 +408,7 @@ public class Tile
  				
  			case 15:
  			{
+ 				//11,13,14,15
  				int[] options = {11,13,14,15}; 
 				
 				int changeCase = (int)(Math.random()*options.length);
@@ -438,7 +463,7 @@ public class Tile
 			else
 			{
 				cells[i][k+1][mVal].removeObject();
-			cells[i][k+1][mVal].addObject(new Path());
+				cells[i][k+1][mVal].addObject(new Path());
 			}
 			mVal++;
 					
@@ -484,22 +509,104 @@ public class Tile
     					cells[i][k][j].removeObject();
     					cells[i][k][j].addObject(new Wall());
     				}  				
-    				else if(top+bot+left+right == 2)
+    				/*else if(top+bot+left+right == 2)
     				{   				
     						cells[i][j][k].removeObject();
-    						cells[i][k][j].addObject(new Path());   								
-    				}
+    						cells[i][j][k].addObject(new Path());   								
+    				}*/
     				else if(top+bot+left+right == 0)
     				{
-    					cells[i][j][k].removeObject();
+    					cells[i][k][j].removeObject();
     					cells[i][k][j].addObject(new Path());
-    				}   
+    				}
     							
     			}
     		}
     	}
     	
     }
+    
+    private void killTwoWallPairs()
+    {
+    				
+    	int top, bot, left, right;
+    	
+    	//length/5 because, in general, the individual pieces of wall that are left in open areas are not longer than 1/3rd the array.
+    	//for(int L = 0; L < (cells.length/3); L++)
+    	//{
+    		
+    	
+    	for(int i = 0; i < cells.length; i++)
+    	{
+    		for(int k = 1; k < cells[i].length-1; k++)
+    		{
+    			for(int j = 1; j < cells[i][k].length-1; j++)
+    			{
+    				
+    				if(cells[i][k-1][j].getObject().getDisplay() == '#')
+    					top = 1;
+    				else top = 0;
+    				
+    				if(cells[i][k+1][j].getObject().getDisplay() == '#')
+    					bot = 1;
+    				else bot = 0;
+    				
+    				if(cells[i][k][j-1].getObject().getDisplay() == '#')
+    					left = 1;
+    				else left = 0;
+    				
+    				if(cells[i][k][j+1].getObject().getDisplay() == '#')
+    					right = 1;
+    				else right = 0;
+    				
+    				
+    				
+    				//kill off the 'two walls next to eachother in a completely open area' thing
+    				int mine = 0;
+    				if(cells[i][k][j].getObject().getDisplay() == '#')
+    					mine = 1;
+    				else mine = 0;
+    				
+    				if(top + mine == 2 && bot + left + right == 0)
+    				{
+    					cells[i][k-1][j].removeObject();
+    					cells[i][k-1][j].addObject(new Path());
+    					
+    					cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Path());
+    				}
+    				else if( bot + mine == 2 && top + right + left == 0)
+    				{
+    					cells[i][k+1][j].removeObject();
+    					cells[i][k+1][j].addObject(new Path());
+    					
+    					cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Path());
+    				}
+    				else if(right + mine == 2 && top + bot + left == 0)
+    				{
+    					cells[i][k][j+1].removeObject();
+    					cells[i][k][j+1].addObject(new Path());
+    					
+    					cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Path());
+    				}
+    				else if(left + mine == 2 && top + bot + right == 0)
+    				{
+    					cells[i][k][j-1].removeObject();
+    					cells[i][k][j-1].addObject(new Path());
+    					
+    					cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Path());
+    				}
+    			}
+    		}
+    	}
+    	
+    	//}
+    }
+    
+    
     
     //obliterates the caves if not first cleaned. changes certain patterns to attemp to ensure connectivity.
     private void finalClean()
@@ -530,17 +637,14 @@ public class Tile
     				if(cells[i][k][j+1].getObject().getDisplay() == '#')
     					right = 1;
     				else right = 0;
-
+    				
+    				
+    			
 	
     				if(top+bot+left+right == 4)
     				{
     					cells[i][k][j].removeObject();
     					cells[i][k][j].addObject(new Wall());
-    				}
-    				else if(top + bot == 0)
-    				{
-    					cells[i][k][j].removeObject();
-    					cells[i][k][j].addObject(new Path());
     				}
     				else if(top + bot == 2 && left + right == 0)
     				{
@@ -557,12 +661,17 @@ public class Tile
     					cells[i][k][j].removeObject();
     					cells[i][k][j].addObject(new Path());
     				}
-    				else if(top+bot+left+right == 1)
+    				else if(top + bot == 0)
     				{
     					cells[i][k][j].removeObject();
     					cells[i][k][j].addObject(new Path());
     				}
-    				else if(top+bot+left+right == 0)
+    				if(top+bot+left+right == 1)
+    				{
+    					cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Path());
+    				}
+    				if(top+bot+left+right == 0)
     				{
     					cells[i][k][j].removeObject();
     					cells[i][k][j].addObject(new Path());
@@ -604,15 +713,66 @@ public class Tile
     				if(cells[i][k][j+1].getObject().getDisplay() == '#')
     					right = 1;
     				else right = 0;
-
+    				
+    				
+					if(top + left + right == 0)
+					{
+						cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Path());
+					}
+					if(bot + right + left == 0)
+					{
+						cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Path());
+					}
+					if(top + bot + right == 0)
+					{
+						cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Path());
+					}
+					if(left + top + bot == 0)
+					{
+						cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Path());
+					}
+					
     				if(top+bot+left+right == 0)
     				{
     					cells[i][k][j].removeObject();
     					cells[i][k][j].addObject(new Path());
     				}
+    				
+    				
+    				
+    				 
     			}
     		}
     	}
+    	
+    	//fix the edge of the screen
+    	for(int i = 0; i < cells.length; i++)
+    	{
+    		for(int k = 0; k < cells[i].length; k++)
+    		{
+    			for(int j = 0; j < cells[i][k].length; j++)
+    			{
+    				if(k == 0 || k == cells[i].length-1)
+    				{
+    					cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Wall());
+    				}
+    				
+    				if(j == 0 || j == cells[i].length-1)
+    				{
+    					cells[i][k][j].removeObject();
+    					cells[i][k][j].addObject(new Wall());
+    				}
+    			}
+    		}
+    	}
+    	
+    	
+    	
     	
     	//fix original pathways. edge of the screen needs to be reachable in order to move to next tile.   	
     		double half = Math.ceil(size/2.0)-1;
@@ -808,6 +968,16 @@ public class Tile
     	}
 	
     }
+    
+    public boolean spawn(RObject toSpawn,int curTile, int x, int y)
+    {
+    	if(cells[curTile][y][x].addObject(toSpawn))
+    	{
+    		return true;
+    	}
+    	else System.out.println("no");
+    	return false;
+    }
   
   
 	
@@ -815,5 +985,9 @@ public class Tile
 	{
 		return cells[index];
 	}
-   
+	
+	public int getSize()
+	{
+		return size;
+	}
 }
