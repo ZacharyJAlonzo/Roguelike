@@ -42,12 +42,21 @@ public class MapDisplay implements KeyListener
 	private Player player;
 	//entire map
 	private Tile map;
-	int currentDisplay;
-
+	private int inputMode;
+	
+	private int lookX, lookY;
+	private int curScreenX, curScreenY;
+	
     public MapDisplay(Tile t, Player p)
     {
     	map = t;
     	player = p;
+    	inputMode = 0;
+    	
+    	lookX = 0;
+    	lookY = 0;
+    	curScreenX = 0;
+    	curScreenY = 0;
     	
     	frame = new JFrame("map");
     	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -138,7 +147,7 @@ public class MapDisplay implements KeyListener
 		
 		 logWindow = new JScrollPane(logDisplay, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		 logWindow.setBorder(BorderFactory.createTitledBorder(statBorder, "LOG", TitledBorder.CENTER, TitledBorder.TOP, new Font("monospaced", Font.BOLD, 13), Color.black));
-		 logWindow.setBounds(1175,20,350,500);
+		 logWindow.setBounds(1175,10,350,500);
 		 allWindows.add(logWindow);
 		
     	printTile();
@@ -154,32 +163,139 @@ public class MapDisplay implements KeyListener
     public void keyPressed(KeyEvent e)
     {
     	
-    	System.out.println("something");
     	int key = e.getKeyCode();
 
     	if (key == KeyEvent.VK_LEFT)
     	{
-        	player.moveLeft();
-        	printTile();
+        	switch(inputMode)
+        	{
+        		//player input mode
+        		case 0:
+        		{System.out.println("player move");
+        			player.moveLeft();
+        			map.callTicks(player.getCurrentTile());
+        			printTile();  
+        				break;  			
+        		}
+        		//look window input mode
+        		case 1:
+        		{
+        			//a turn has not passed, dont do AI stuff
+        			updateLookTarget(lookX-1, lookY);
+        			break;
+        		}
+        		//inventory input mode, TBI
+        		case 2:	
+        		{
+        			
+        		}
+        	}
     	}
 
     	if (key == KeyEvent.VK_RIGHT)
     	{
+        	switch(inputMode)
+        	{
+        		//player input mode
+        		case 0:
+        		{System.out.println("player move");
+        			player.moveRight();
+        			//do AI stuff, IE a turn has passed
+        			map.callTicks(player.getCurrentTile());
+        			printTile(); 
+        				break;    			
+        		}
+        		//look window input mode
+        		case 1:
+        		{
+        			//a turn has not passed, dont do AI stuff
+        			updateLookTarget(lookX+1, lookY);
+        			break;
+        		}
+        		//inventory input mode, TBI
+        		case 2:	
+        		{
+        			
+        		}
+        	}
         	
-        	player.moveRight();
-        	printTile();
     	}
 
     	if (key == KeyEvent.VK_UP)
     	{
-        	player.moveUp();
-        	printTile();
+        	switch(inputMode)
+        	{
+        		//player input mode
+        		case 0:
+        		{
+        			System.out.println("player move");
+        			player.moveUp();
+        			//do AI stuff, IE a turn has passed
+        			System.out.println("here");
+        			map.callTicks(player.getCurrentTile());
+        			printTile();
+        			break;     			
+        		}
+        		//look window input mode
+        		case 1:
+        		{
+        			//a turn has not passed, dont do AI stuff
+        			updateLookTarget(lookX, lookY-1);
+        			break;
+        		}
+        		//inventory input mode, TBI
+        		case 2:	
+        		{
+        			
+        		}
+        	}
+        	
+        	
     	}
 
     	if (key == KeyEvent.VK_DOWN)
     	{
-        	player.moveDown();
-        	printTile();
+        switch(inputMode)
+        	{
+        		//player input mode
+        		case 0:
+        		{System.out.println("player move");
+        			player.moveDown();
+        			//do AI stuff, IE a turn has passed
+        			map.callTicks(player.getCurrentTile());
+        			printTile();
+        			break;     			
+        		}
+        		//look window input mode
+        		case 1:
+        		{
+        			//a turn has not passed, dont do AI stuff
+        			updateLookTarget(lookX, lookY+1);
+        			break;
+        		}
+        		//inventory input mode, TBI
+        		case 2:	
+        		{
+        			
+        		}
+        	}
+    	}
+    	
+    	if(key == KeyEvent.VK_L)
+    	{
+    		if(lookDisplay.isVisible())
+    		{
+    			lookDisplay.setVisible(false);
+    			inputMode = 0;
+    			return;
+    		}
+    		else 
+    		{
+    			lookDisplay.setVisible(true);
+  					updateLookTarget(player.getAX(), player.getAY());
+    			inputMode = 1;
+    			return;
+    		}
     	}
 
     }
@@ -194,6 +310,54 @@ public class MapDisplay implements KeyListener
     	
     }
     
+    public void updateLookTarget(int x, int y)
+    {
+    	Cell lookTarget = player.look(player.getAX(), player.getAY());
+    	
+    	if(x <= map.getCells(player.getCurrentTile()).length-1 && x >= 0)
+    	lookX = x;
+    	if(y <= map.getCells(player.getCurrentTile()).length-1 && y >= 0)
+    	lookY = y;
+    	
+    	int newScreenX = curScreenX;
+    	int newScreenY = curScreenY;
+    	
+    	
+    	if(lookX >= map.getCells(player.getCurrentTile()).length/2)
+    	{
+    		//display on the left side of the object
+    		newScreenX = (lookX*13)-91;
+    		curScreenX = newScreenX;
+    	}
+    	else
+    	{
+    		//display on the right side of the object
+    		newScreenX = (lookX*13)+15;
+    		curScreenX = newScreenX;
+    	}
+    	
+    	
+    	if(lookY >= map.getCells(player.getCurrentTile()).length/2)
+    	{
+    		//display on the top side of the object
+    		newScreenY = (lookY*15)-105;
+    		curScreenY = newScreenY;
+    	}
+    	else 
+    	{
+    		//display on the bottom side of the object
+    		newScreenY = (lookY*15)+30;
+    		curScreenY = newScreenY;
+    	}
+    	
+    	
+    	lookDisplay.setBounds(newScreenX, newScreenY, 100, 125);
+    	//update screen position
+    	//display lookTarget information.
+    }
+    
+    
+
     
     public void printTile()
     {

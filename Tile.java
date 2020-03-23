@@ -971,6 +971,7 @@ public class Tile
     
     public boolean spawn(RObject toSpawn,int curTile, int x, int y)
     {
+    	System.out.println("spawning: " + toSpawn.getDisplay());
     	if(cells[curTile][y][x].addObject(toSpawn))
     	{
     		return true;
@@ -990,4 +991,36 @@ public class Tile
 	{
 		return size;
 	}
+	
+	
+	public void callTicks(int whichTile)
+	{
+		for(int i = 0; i < size; i++)
+		{
+			for(int k = 0; k < size; k++)
+			{
+				if(cells[whichTile][i][k].getObject().CanTick() && !(cells[whichTile][i][k].getObject().DidTick()))
+				{
+					//System.out.println("here2");
+					cells[whichTile][i][k].getObject().Tick();
+				}
+			}
+		}
+		resetTickStates(whichTile);
+	}
+	
+	public void resetTickStates(int whichTile)
+	{
+		for(int i = 0; i < size; i++)
+		{
+			for(int k = 0; k < size; k++)
+			{
+				if(cells[whichTile][i][k].getObject().CanTick())
+				{					
+					cells[whichTile][i][k].getObject().resetTickState();
+				}
+			}
+		}
+	}
+	
 }

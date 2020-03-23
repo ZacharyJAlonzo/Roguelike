@@ -16,20 +16,27 @@ public class Player extends MovingObject
     	display = '@';	
     }
     
-    public void tick()
+    public void Tick()
     {
+    	
     	//listen for input, manage turn system. 1 'tick' = 1 turn.
     	//player's tick will call tick on the current tile.
     	//tile will call tick on each cell.
+    	didTick = true;
     }
     
     
-    // 'L' key action. COQ 
-   	public void look()
+    // 'L' key action.
+   	public Cell look(int x, int y)
    	{
-   		
-   		
+   	 	if(x <= playMap.getCells(currentTile).length-1 && x >= 0 && y <= playMap.getCells(currentTile).length-1 && y >= 0)
+   	 	{
+   	 		return playMap.getCells(currentTile)[y][x];
+   	 	}
+   		else return null;
    	}
+   	
+   	
     public int getCurrentTile()
     {
     	return currentTile;
@@ -41,13 +48,19 @@ public class Player extends MovingObject
     	
     	if(succeed)
     	{
+    		
     		return true;
     	}
     	
     	return false;
     }
     
-    
+   /* public int getAX(){
+    	return ax;
+    }
+    public int getAY(){
+    	return ay;
+    }*/
     
     public char getDisplay()
     {

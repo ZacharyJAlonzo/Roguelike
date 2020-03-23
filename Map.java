@@ -20,20 +20,14 @@ public class Map
    	 System.out.println();
    	 
    	 Player p = new Player(x);
+   	 Enemy e = new Enemy(x, 24,9);
    	 MapDisplay y = new MapDisplay(x,p);
+   	 //e.findRouteToHostile(p);
    	 
-   	 
- 	 for(int i = 0; i< 50; i++)
- 	 {
- 	 	for(int k = 0; k < 50; k++)
- 	 	{
- 	 		System.out.print(x.getCells(0)[i][k].getObject().getDisplay());
- 	 	}
- 	 	System.out.println();
- 	 }
+ 	
  	 	
    	 
-   	 
+    
    }
     
 }

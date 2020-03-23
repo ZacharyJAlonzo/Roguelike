@@ -23,13 +23,28 @@ abstract class MovingObject extends RObject
     	ax = playMap.getSize()/2-1;
     	ay = playMap.getSize()/2-1;
     	
+    	System.out.println("Spawning in constructor");
     	playMap.spawn(this, currentTile, ax, ay);
     }
     
-    public void tick()
+    public MovingObject(Tile t, int x, int y)
     {
-    		
-    }  
+    	super(true);
+    	isMoving = true;
+    	playMap = t;
+    	currentTile = 0;
+    	
+    	ax = x;
+    	ay = y;
+    	
+    	System.out.println("Spawning in constructor");
+    	playMap.spawn(this, currentTile, ax, ay);
+    }
+    
+    
+    
+    abstract public void Tick();
+
     
     public boolean moveRight()
     {
@@ -65,55 +80,52 @@ abstract class MovingObject extends RObject
     		
     		//if there is a tile, is it blocked by a wall?
     		//ax is 0 because we are checking the first row
-    		if(playMap.getCells(currentTile+1)[ay][0].getObject().getDisplay() == '#')
+    		switch(playMap.getCells(currentTile+1)[ay][0].getObject().getDisplay())
     		{
-    			//the object we tried to reach was a wall
-    			return false;
-    		}
-    		else
-    		{
-    			playMap.getCells(currentTile)[ay][ax].removeObject();			
+    			case '#':
+    				return false;
+    			case ' ':
+    			{
+    				playMap.getCells(currentTile)[ay][ax].removeObject();			
     		 			
-    			//since we ae moving to a new tile, update the current tile
-    			currentTile += 1;
-    			ax = 0;
-    			//ay remains the same
+    				//since we ae moving to a new tile, update the current tile
+    				currentTile += 1;
+    				ax = 0;
+    				//ay remains the same
     			
-    			 playMap.getCells(currentTile)[ay][ax].addObject(this);
-    			return true;
+    			 	playMap.getCells(currentTile)[ay][ax].addObject(this);
+    				return true;
+    			}
+    			default:
+    				return false;
     		}
     		
     	}
     	//we are only moving within the tile's bounds
     	else
     	{
-    		if(playMap.getCells(currentTile)[ay][ax+1].getObject().getDisplay() == '#')
+    		switch(playMap.getCells(currentTile)[ay][ax+1].getObject().getDisplay())
     		{
-    			//the object we tried to reach was a wall
-    			return false;
+    			case '#':
+    				return false;
+    			case ' ':
+    			{
+    				//update ax 
+				 	playMap.getCells(currentTile)[ay][ax].removeObject();			
+    				ax += 1;
+    				 playMap.getCells(currentTile)[ay][ax].addObject(this);
+    				//ay remains the same
+    				return true;
+    			}
+    			default:
+    				return false;
     		}
-    		else
-    		{
-				//update ax 
-				 playMap.getCells(currentTile)[ay][ax].removeObject();			
-    			ax += 1;
-    			 playMap.getCells(currentTile)[ay][ax].addObject(this);
-    			//ay remains the same
-    			return true;
-    		}
-    		
+	
     	}
 
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
+
     public boolean moveLeft()
     {
     	//the moving entity has attempted to step into a new tile
@@ -146,54 +158,53 @@ abstract class MovingObject extends RObject
     			}
     		}
     		
-    		//if there is a tile, is it blocked by a wall?
-    		//ax is 0 because we are checking the first row
-    		if(playMap.getCells(currentTile-1)[ay][playMap.getCells(currentTile).length-1].getObject().getDisplay() == '#')
+    		switch(playMap.getCells(currentTile-1)[ay][playMap.getCells(currentTile).length-1].getObject().getDisplay())
     		{
-    			//the object we tried to reach was a wall
-    			return false;
-    		}
-    		else
-    		{
-    			playMap.getCells(currentTile)[ay][ax].removeObject();			
+    			case '#':
+    				return false;
+    			case ' ':
+    			{
+    				playMap.getCells(currentTile)[ay][ax].removeObject();			
 
-    			//since we ae moving to a new tile, update the current tile
-    			currentTile -= 1;
-    			ax = playMap.getCells(currentTile).length-1;
-    			//ay remains the same
+    				//since we ae moving to a new tile, update the current tile
+    				currentTile -= 1;
+    				ax = playMap.getCells(currentTile).length-1;
+    				//ay remains the same
     			
-    			 playMap.getCells(currentTile)[ay][ax].addObject(this);
-    			return true;
+    			 	playMap.getCells(currentTile)[ay][ax].addObject(this);
+    				return true;
+    			}
+    			default:
+    				return false;
     		}
     		
     	}
     	//we are only moving within the tile's bounds
     	else
     	{
-    		if(playMap.getCells(currentTile)[ay][ax-1].getObject().getDisplay() == '#')
+    		
+    		switch(playMap.getCells(currentTile)[ay][ax-1].getObject().getDisplay())
     		{
-    			//the object we tried to reach was a wall
-    			return false;
+    			case '#':
+    				return false;
+    			case ' ':
+    			{
+    				//update ax 
+				 	playMap.getCells(currentTile)[ay][ax].removeObject();			
+    				ax -= 1;
+    			 	playMap.getCells(currentTile)[ay][ax].addObject(this);
+    				//ay remains the same
+    				return true;
+    			}
+    			default:
+    				return false;
     		}
-    		else
-    		{
-				//update ax 
-				 playMap.getCells(currentTile)[ay][ax].removeObject();			
-    			ax -= 1;
-    			 playMap.getCells(currentTile)[ay][ax].addObject(this);
-    			//ay remains the same
-    			return true;
-    		}
+    		
     		
     	}
 
     }
     
-    
-
-
-
-
 
     public boolean moveUp()
     {
@@ -227,54 +238,53 @@ abstract class MovingObject extends RObject
     			}
     		}
     		
-    		//if there is a tile, is it blocked by a wall?
-    		if(playMap.getCells(currentTile-3)[playMap.getCells(currentTile).length-1][ax].getObject().getDisplay() == '#')
+    		switch(playMap.getCells(currentTile-3)[playMap.getCells(currentTile).length-1][ax].getObject().getDisplay())
     		{
-    			//the object we tried to reach was a wall
-    			return false;
-    		}
-    		else
-    		{
-    			//since we ae moving to a new tile, update the current tile
-    			playMap.getCells(currentTile)[ay][ax].removeObject();
+    			case '#':
+    				return false;
+    			case ' ':
+    			{
+    				//since we ae moving to a new tile, update the current tile
+    				playMap.getCells(currentTile)[ay][ax].removeObject();
     			
-    			currentTile -= 3;
-    			ay = playMap.getCells(currentTile).length-1;
-    			//ax remains the same
+    				currentTile -= 3;
+    				ay = playMap.getCells(currentTile).length-1;
+    				//ax remains the same
     			
-    			playMap.getCells(currentTile)[ay][ax].addObject(this);
+    				playMap.getCells(currentTile)[ay][ax].addObject(this);
     								
-    			return true;
+    				return true;
+    			}
+    			default:
+    				return false;
     		}
     		
     	}
     	//we are only moving within the tile's bounds
     	else
     	{
-    		if(playMap.getCells(currentTile)[ay-1][ax].getObject().getDisplay() == '#')
+    		switch(playMap.getCells(currentTile)[ay-1][ax].getObject().getDisplay())
     		{
-    			//the object we tried to reach was a wall
-    			return false;
+    			case '#':
+    				return false;
+    			case ' ':
+    			{
+    				//update ax 
+				 	playMap.getCells(currentTile)[ay][ax].removeObject();			
+    				ay -= 1;
+    			 	playMap.getCells(currentTile)[ay][ax].addObject(this);
+    				//ay remains the same
+    				return true;
+    			}
+    			default:
+    				return false;
     		}
-    		else
-    		{
-				//update ax 
-				 playMap.getCells(currentTile)[ay][ax].removeObject();			
-    			ay -= 1;
-    			 playMap.getCells(currentTile)[ay][ax].addObject(this);
-    			//ay remains the same
-    			return true;
-    		}
-    		
+
     	}
 
     }
     
-    
-    
-    
-    
-    
+
      public boolean moveDown()
     {
     	//the moving entity has attempted to step into a new tile
@@ -307,402 +317,63 @@ abstract class MovingObject extends RObject
     			}
     		}
     		
-    		//if there is a tile, is it blocked by a wall?
-    		if(playMap.getCells(currentTile+3)[0][ax].getObject().getDisplay() == '#')
+    		
+    		switch(playMap.getCells(currentTile+3)[0][ax].getObject().getDisplay())
     		{
-    			System.out.println("wall");
-    			//the object we tried to reach was a wall
-    			return false;
-    		}
-    		else
-    		{
-    			System.out.println("here");
-    			//since we ae moving to a new tile, update the current tile
-    			playMap.getCells(currentTile)[ay][ax].removeObject();			
+    			case '#':
+    				return false;
+    			case ' ':
+    			{
+    				System.out.println("here");
+    				//since we ae moving to a new tile, update the current tile
+    				playMap.getCells(currentTile)[ay][ax].removeObject();			
     			
-    			currentTile += 3;
-    			ay = 0;
+    				currentTile += 3;
+    				ay = 0;
     			  			
-    			playMap.getCells(currentTile)[ay][ax].addObject(this);
-    			//ax remains the same
-    			return true;
+    				playMap.getCells(currentTile)[ay][ax].addObject(this);
+    				//ax remains the same
+    				return true;
+    			}
+    			default:
+    				return false;
     		}
     		
     	}
     	//we are only moving within the tile's bounds
     	else
     	{
-    		if(playMap.getCells(currentTile)[ay+1][ax].getObject().getDisplay() == '#')
+    		switch(playMap.getCells(currentTile)[ay+1][ax].getObject().getDisplay())
     		{
-    			//the object we tried to reach was a wall
-    			return false;
-    		}
-    		else
-    		{
-				//update ax 
-				 playMap.getCells(currentTile)[ay][ax].removeObject();			
-    			ay += 1;
-    			 playMap.getCells(currentTile)[ay][ax].addObject(this);
-    			//ay remains the same
-    			return true;
+    			case '#':
+    				return false;
+    			case ' ':
+    			{
+    				//update ax 
+					 playMap.getCells(currentTile)[ay][ax].removeObject();			
+    				ay += 1;
+    			 	playMap.getCells(currentTile)[ay][ax].addObject(this);
+    				//ay remains the same
+    				return true;
+    			}
+    			default:
+    				return false;
     		}
     		
     	}
 
     }
+    
+    
+    public int getAX()
+    {
+    	return ax;
+    }
+    public int getAY()
+    {
+    	return ay;
+    }
+    
+    
     	
 }
-/*
- *public boolean moveRight()
-    {
-    		
-    	if((getCurrentTile().getAY()+1) == getCurrentTile().getMapTile().getTiles()[0].length) //moved over a mapTile
-    	{
-    		   		
-    		switch(getCurrentTile().getMapTile().getArrayNumber())
-    		{
-    			case 2:
-    			{
-    				return false;
-    			}
-    			
-    			case 5:
-    			{
-    				return false;   				
-    			}
-    			case 8:
-    			{
-    				return false;    			
-    			}
-    			
-    			default:
-    			{
-    				break;
-    			}
-    		}
-    		
-    		
-    		if(getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()+1].getTiles()[getCurrentTile().getAX()][0].arrive(this))
-    		{
-    			getCurrentTile().leave();   		
-    			setCurrentTile(getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()+1].getTiles()[getCurrentTile().getAX()][0]);
-    		}
-    		else //moving to new mapTile, but something blocks the way
-    		{
-    			EF_MovingEntity temp = getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()+1].getTiles()[getCurrentTile().getAX()][0].getMovingContained();
-    			
-    			if(temp == null) //non-movable object blocks the path
-        		{
-        			return false;
-        		}        		
-        		
-        		else //NPC blocks the path
-        		{
-        			if(!(temp.isFriendly()))
-        			{        				
-        				return false;
-        			}
-        			else
-        			{        				
-        				return false;
-        			}
-        		}
-    		}
-    		    			
-    	}      	
-        else 
-        {
-        	if(getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()][getCurrentTile().getAY()+1].arrive(this))
-        	{
-        		getCurrentTile().leave();
-        		setCurrentTile(getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()][getCurrentTile().getAY()+1]);
-        	}
-        	else //something blocks the way
-        	{
-        		EF_MovingEntity temp = getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()][getCurrentTile().getAY()+1].getMovingContained();
-        		
-        		if(temp == null) //non-movable object blocks the path
-        		{
-        			return false;
-        		}        		
-        		else //NPC blocks the path
-        		{
-        			if(!(temp.isFriendly()))
-        			{
-        				return false;
-        			}
-        			else
-        			{
-        				return false;
-        			}
-        		}
-        	}
-    			
-        }		
-    
-    	return true;
-    }   
-    public boolean moveLeft()
-    {
-    
-    	if((getCurrentTile().getAY()-1) == -1) //moved over a mapTile
-    	{   	
-    		switch(getCurrentTile().getMapTile().getArrayNumber())
-    		{
-    			case 0:
-    			{
-    				return false;
-    			}
-    			
-    			case 3:
-    			{
-    				return false;   				
-    			}
-    			case 6:
-    			{
-    				return false;    			
-    			}
-    			    			
-    			default:
-    			{
-    				break;
-    			}
-    		}
-    	  		
-    		
-    		if(getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()-1].getTiles()[getCurrentTile().getAX()][getCurrentTile().getMapTile().getTiles()[0].length-1].arrive(getCurrentTile().leave()))
-    		{
-    			getCurrentTile().leave();
-    			setCurrentTile(getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()-1].getTiles()[getCurrentTile().getAX()][getCurrentTile().getMapTile().getTiles()[0].length-1]);
-    		}
-    		else //moving to new mapTile, but something blocks the way
-    		{
-    			EF_MovingEntity temp = getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()-1].getTiles()[getCurrentTile().getAX()][getCurrentTile().getMapTile().getTiles()[0].length-1].getMovingContained();
-    			
-    			if(temp == null) //non-movable object blocks the path
-        		{
-        			return false;
-        		}        		
-        		
-        		else //NPC blocks the path
-        		{
-        			if(!(temp.isFriendly()))
-        			{        				
-        				return false;
-        			}
-        			else
-        			{        				
-        				return false;
-        			}
-        		}
-    		}
-    			
-    	}      	
-    	else
-    	{   	
-    		if(getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()][getCurrentTile().getAY()-1].arrive(this))
-    		{
-    			getCurrentTile().leave();
-    			setCurrentTile(getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()][getCurrentTile().getAY()-1]);   
-    		}
-    		else //something blocks the way
-    		{
-    			EF_MovingEntity temp = getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()][getCurrentTile().getAY()-1].getMovingContained();
-    			
-    			if(temp == null) //non-movable object blocks the path
-        		{
-        			return false;
-        		}        		
-        		
-        		else //NPC blocks the path
-        		{
-        			if(!(temp.isFriendly()))
-        			{       				
-        				return false;
-        			}
-        			else
-        			{        				
-        				return false;
-        			}
-        		}
-    		}
-    		
-    	}
-    		return true;
-    }
-    
-    public boolean moveUp()
-    {
-    	if((getCurrentTile().getAX()-1) == -1) //moved over a mapTile
-    	{    	
-    		switch(getCurrentTile().getMapTile().getArrayNumber())
-    		{
-    			case 0:
-    			{
-    				return false;
-    			}
-    			
-    			case 1:
-    			{
-    				return false;   				
-    			}
-    			case 2:
-    			{
-    				return false;    			
-    			}
-    			
-    			default:
-    			{
-    				break;
-    			}
-    		}
-    		
-    		if(getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()-3].getTiles()[getCurrentTile().getMapTile().getTiles().length-1][getCurrentTile().getAY()].arrive(this))
-    		{
-    			getCurrentTile().leave();
-    			setCurrentTile(getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()-3].getTiles()[getCurrentTile().getMapTile().getTiles().length-1][getCurrentTile().getAY()]);
-    			return true;
-    		}
-    		else //moving to new mapTile, but something blocks the way
-    		{
-    			EF_MovingEntity temp = getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()-3].getTiles()[getCurrentTile().getMapTile().getTiles().length-1][getCurrentTile().getAY()].getMovingContained();
-    			
-    			if(temp == null) //non-movable object blocks the path
-        		{
-        			return false;
-        		}        		
-        		
-        		else //NPC blocks the path
-        		{
-        			if(!(temp.isFriendly()))
-        			{        				
-        				return false;
-        			}
-        			else
-        			{        				
-        				return false;
-        			}
-        		}
-    		}
-    			
-    	}  
-    	else
-    	{  	
-    		if(getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()-1][getCurrentTile().getAY()].arrive(this))
-    		{
-    			getCurrentTile().leave();
-    			setCurrentTile(getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()-1][getCurrentTile().getAY()]);
-    			return true;
-    		}
-    		else //something blocks the way
-    		{
-    			EF_MovingEntity temp = getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()-1][getCurrentTile().getAY()].getMovingContained();
-    			
-    			if(temp == null) //non-movable object blocks the path
-        		{
-        			return false;
-        		}        		
-        		
-        		else //NPC blocks the path
-        		{
-        			if(!(temp.isFriendly()))
-        			{       				
-        				return false;
-        			}
-        			else
-        			{        				
-        				return false;
-        			}
-        		}
-    		}
-    		
-    	}
-    }
-    
-    public boolean moveDown()
-    {
-   		if((getCurrentTile().getAX()+1) == getCurrentTile().getMapTile().getTiles().length) //moved over a mapTile
-    	{
-    		switch(getCurrentTile().getMapTile().getArrayNumber())
-    		{
-    			case 6:
-    			{
-    				return false;
-    			}
-    			
-    			case 7:
-    			{
-    				return false;   				
-    			}
-    			case 8:
-    			{
-    				return false;    			
-    			}
-    			
-    			default:
-    			{
-    				break;
-    			}
-    		}
-    		
-    		if(getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()+3].getTiles()[0][getCurrentTile().getAY()].arrive(this))
-    		{
-    			getCurrentTile().leave();
-    			setCurrentTile(getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()+3].getTiles()[0][getCurrentTile().getAY()]);	
-    		}
-    		else
-    		{
-    			EF_MovingEntity temp = getCurrentTile().getMapTile().getRoamingTile().getTiles()[getCurrentTile().getMapTile().getArrayNumber()+3].getTiles()[getCurrentTile().getMapTile().getTiles().length-1][getCurrentTile().getAY()].getMovingContained();
-    			
-    			if(temp == null) //non-movable object blocks the path
-        		{
-        			return false;
-        		}        		
-        		
-        		else //NPC blocks the path
-        		{
-        			if(!(temp.isFriendly()))
-        			{        				
-        				return false;
-        			}
-        			else
-        			{        				
-        				return false;
-        			}
-        		}
-    		}
-    			
-    	}  
-    	else
-    	{	
-    		if(getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()+1][getCurrentTile().getAY()].arrive(this))
-    		{
-    			getCurrentTile().leave();
-    			setCurrentTile(getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()+1][getCurrentTile().getAY()]);
-    		}
-    		else
-    		{
-    			EF_MovingEntity temp = getCurrentTile().getMapTile().getTiles()[getCurrentTile().getAX()+1][getCurrentTile().getAY()].getMovingContained();
-    			
-    			if(temp == null) //non-movable object blocks the path
-        		{
-        			return false;
-        		}        		
-        		
-        		else //NPC blocks the path
-        		{
-        			if(!(temp.isFriendly()))
-        			{       				
-        				return false;
-        			}
-        			else
-        			{        				
-        				return false;
-        			}
-        		}
-    		}
-    		
-    	}
-    	return true;
-    }
- **/

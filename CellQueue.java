@@ -9,7 +9,7 @@
 
 public class CellQueue 
 {
-	private RObject[] contained;
+	 RObject[] contained;
 
     public CellQueue(RObject obj) 
     {
@@ -42,15 +42,17 @@ public class CellQueue
     {
     	if(contained[1] == null)
     	{
+    		//System.out.println("contained[1] is null");
     		contained[1] = obj;
     		return true;
     	}
     	else if(contained[0] == null)
     	{
+    		System.out.println("contained[0] is null");
     		contained[0] = obj;
     		return true;
     	}
-    	System.out.println(contained[0].getDisplay() + " " + contained[1].getDisplay());
+    	//System.out.println(contained[0].getDisplay() + " " + contained[1].getDisplay());
     	return false;    		
     }
     ///////////////////////////////////
