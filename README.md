@@ -7,5 +7,6 @@ Map.java is the runner file
 Player movement functions with the arrow keys. 
 Currently, 9 tiles are available to move through. a 3x3 grid.
 
-AI will be added in the next update. Sightlines and pathfinding will be implemented.
+AI pathfinding is currently implemented. AI follows the player around if it player steps within sight.
+Attack system and health will be added next update.
 
