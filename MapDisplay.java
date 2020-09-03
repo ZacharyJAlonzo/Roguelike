@@ -45,6 +45,7 @@ public class MapDisplay implements KeyListener
 	private int inputMode;
 	
 	private int lookX, lookY;
+	private int lookDisplayWidth, lookDisplayHeight;
 	private int curScreenX, curScreenY;
 	
     public MapDisplay(Tile t, Player p)
@@ -52,6 +53,8 @@ public class MapDisplay implements KeyListener
     	map = t;
     	player = p;
     	inputMode = 0;
+    	
+    	
     	
     	lookX = 0;
     	lookY = 0;
@@ -97,8 +100,9 @@ public class MapDisplay implements KeyListener
    		statWindow.add(HP);
    			
    			HPField = new JTextField();
-   			HPField.setBounds(420,20,40,20);
+   			HPField.setBounds(420,20,70,20);
    			HPField.setFont(new Font("Monospaced", Font.PLAIN, 15));
+   			HPField.setEditable(false);
    			statWindow.add(HPField);
    		
    		
@@ -108,8 +112,9 @@ public class MapDisplay implements KeyListener
    		statWindow.add(AV);
    			
    			AVField = new JTextField();
-   			AVField.setBounds(180,20,40,20);
+   			AVField.setBounds(180,20,70,20);
    			AVField.setFont(new Font("Monospaced", Font.PLAIN, 15));
+   			AVField.setEditable(false);
    			statWindow.add(AVField);
    		
    		DV = new JLabel("DV:");
@@ -118,8 +123,9 @@ public class MapDisplay implements KeyListener
    		statWindow.add(DV);
    			
    			DVField = new JTextField();
-   			DVField.setBounds(300,20,40,20);
+   			DVField.setBounds(300,20,70,20);
    			DVField.setFont(new Font("Monospaced", Font.PLAIN, 15));
+   			DVField.setEditable(false);
    			statWindow.add(DVField);
    			
    			
@@ -129,17 +135,22 @@ public class MapDisplay implements KeyListener
    		statWindow.add(LV);
    			
    			LVField = new JTextField();
-   			LVField.setBounds(60,20,40,20);
+   			LVField.setBounds(60,20,70,20);
    			LVField.setFont(new Font("Monospaced", Font.PLAIN, 15));
+   			LVField.setEditable(false);
    			statWindow.add(LVField);
     	  	
+    	  	
     	 lookDisplay = new JTextArea();
-    	 lookDisplay.setBounds(100,100,125,150);
-    	 lookDisplay.setBorder(BorderFactory.createTitledBorder(statBorder, "LOOK", TitledBorder.CENTER, TitledBorder.TOP, new Font("monospaced", Font.BOLD, 13), Color.black));
     	 
-    	 lookDisplay.setVisible(false);
+    	 lookDisplay.setBorder(BorderFactory.createTitledBorder(statBorder, "LOOK", TitledBorder.CENTER, TitledBorder.TOP, new Font("monospaced", Font.BOLD, 13), Color.black));
+    	 lookDisplay.setFont(new Font("Monospaced",Font.PLAIN,12));	 
+    	 lookDisplay.setVisible(false);   	 
     	 
     	 allWindows.add(lookDisplay);
+    	 lookDisplayWidth = 200;
+    	 lookDisplayHeight = 150;
+    	 lookDisplay.setBounds(100,100,lookDisplayWidth,lookDisplayHeight);
     	 allWindows.setLayer(lookDisplay, 1);
 		
 		 logDisplay = new JTextArea();
@@ -172,7 +183,7 @@ public class MapDisplay implements KeyListener
         		//player input mode
         		case 0:
         		{System.out.println("player move");
-        			player.moveLeft();
+        			player.moveL();
         			map.callTicks(player.getCurrentTile());
         			printTile();  
         				break;  			
@@ -199,7 +210,7 @@ public class MapDisplay implements KeyListener
         		//player input mode
         		case 0:
         		{System.out.println("player move");
-        			player.moveRight();
+        			player.moveR();
         			//do AI stuff, IE a turn has passed
         			map.callTicks(player.getCurrentTile());
         			printTile(); 
@@ -229,9 +240,9 @@ public class MapDisplay implements KeyListener
         		case 0:
         		{
         			System.out.println("player move");
-        			player.moveUp();
+        			player.moveU();
         			//do AI stuff, IE a turn has passed
-        			System.out.println("here");
+        			//System.out.println("here");
         			map.callTicks(player.getCurrentTile());
         			printTile();
         			break;     			
@@ -260,7 +271,7 @@ public class MapDisplay implements KeyListener
         		//player input mode
         		case 0:
         		{System.out.println("player move");
-        			player.moveDown();
+        			player.moveD();
         			//do AI stuff, IE a turn has passed
         			map.callTicks(player.getCurrentTile());
         			printTile();
@@ -319,6 +330,7 @@ public class MapDisplay implements KeyListener
     	if(y <= map.getCells(player.getCurrentTile()).length-1 && y >= 0)
     	lookY = y;
     	
+    	//default, dont change position if the look window would leave the map area
     	int newScreenX = curScreenX;
     	int newScreenY = curScreenY;
     	
@@ -326,7 +338,7 @@ public class MapDisplay implements KeyListener
     	if(lookX >= map.getCells(player.getCurrentTile()).length/2)
     	{
     		//display on the left side of the object
-    		newScreenX = (lookX*13)-91;
+    		newScreenX = (lookX*13)-190;
     		curScreenX = newScreenX;
     	}
     	else
@@ -340,7 +352,7 @@ public class MapDisplay implements KeyListener
     	if(lookY >= map.getCells(player.getCurrentTile()).length/2)
     	{
     		//display on the top side of the object
-    		newScreenY = (lookY*15)-105;
+    		newScreenY = (lookY*15)-120;
     		curScreenY = newScreenY;
     	}
     	else 
@@ -351,12 +363,47 @@ public class MapDisplay implements KeyListener
     	}
     	
     	
-    	lookDisplay.setBounds(newScreenX, newScreenY, 100, 125);
+    	lookDisplay.setBounds(newScreenX, newScreenY, lookDisplayWidth, lookDisplayHeight);
     	//update screen position
     	//display lookTarget information.
+    	printLookTarget(lookX, lookY);
     }
     
-    
+    private void printLookTarget(int lookX, int lookY)
+    {
+    	Cell target = map.getCells(player.getCurrentTile())[lookY][lookX];
+    	char obj = target.getObject().getDisplay();
+    	String info = "";
+    	
+    	switch(obj)
+    	{
+    		case '#':
+    		{
+    			info = "It's a wall\n";
+    			lookDisplay.setText(info);
+    			break;
+    		}
+    		case ' ':
+    		{
+    			info = "It's the ground\n";
+    			lookDisplay.setText(info);
+    			break;
+    		}
+    		case '@':
+    		{
+    			info = "It's you\nHP:"+player.getCurrentHP()+"/"+player.getTotalHP();
+    			lookDisplay.setText(info);
+    			break;
+    		}
+    		case 'E':
+    		{
+    			MovingObject en = (MovingObject)target.getObject();
+    			info = "It's an enemy\nHP:"+en.getCurrentHP()+"/"+en.getTotalHP();
+    			lookDisplay.setText(info);
+    			break;
+    		}
+    	}
+    }
 
     
     public void printTile()
@@ -379,6 +426,9 @@ public class MapDisplay implements KeyListener
     		display.append(line);
     		line = "";
     	}
+    	
+    	//update HP/AV/DV values
+    	HPField.setText(player.getCurrentHP()+"/"+player.getTotalHP());
     	    	
     }
     

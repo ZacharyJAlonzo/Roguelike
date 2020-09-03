@@ -7,11 +7,17 @@
  */
 
 
-abstract class MovingObject extends RObject
+abstract class MovingObject extends RObject implements killable
 {
 	protected Tile playMap;
 	protected int currentTile;
 	protected int ax, ay;
+	protected int totalHP, currentHP;
+	
+	protected enum moveState
+	{
+		NO_MOVE, MOVE, ATTACK, FRIENDLY;
+	}
 		   
     public MovingObject(Tile t) 
     {
@@ -22,8 +28,10 @@ abstract class MovingObject extends RObject
     	
     	ax = playMap.getSize()/2-1;
     	ay = playMap.getSize()/2-1;
-    	
-    	System.out.println("Spawning in constructor");
+
+		totalHP = 20;
+		currentHP = 20;
+		
     	playMap.spawn(this, currentTile, ax, ay);
     }
     
@@ -36,17 +44,43 @@ abstract class MovingObject extends RObject
     	
     	ax = x;
     	ay = y;
-    	
-    	System.out.println("Spawning in constructor");
+   
     	playMap.spawn(this, currentTile, ax, ay);
     }
     
-    
-    
     abstract public void Tick();
-
     
-    public boolean moveRight()
+    
+    //killable interface implementation//
+    public int getCurrentHP() { return currentHP; }
+    public int getTotalHP() { return totalHP; }
+    public boolean isDead()
+    {
+    	if(currentHP <= 0)
+    	{
+    		die();
+    		return true;
+    	}
+    	else return false;
+    }
+    
+    public void die()
+    {
+    	//despawn, drop inventory
+    	System.out.println("died");
+    	playMap.getCells(currentTile)[ay][ax].removeObject();
+    	System.out.println(playMap.getCells(currentTile)[ay][ax].getObject().getDisplay()+".");
+    }
+    public void takeDamage(int damage)
+    {
+    	currentHP -= damage;
+    	isDead();
+    }
+    /////////////////////////////////////
+	    
+    abstract void attack(MovingObject target);
+    
+    public moveState moveRight()
     {
     	//the moving entity has attempted to step into a new tile
     	if(ax+1 == playMap.getCells(currentTile).length)
@@ -60,16 +94,16 @@ abstract class MovingObject extends RObject
     		{
     			case 2:
     			{
-    				return false;
+    				return moveState.NO_MOVE;
     			}
     			
     			case 5:
     			{
-    				return false;   				
+    				return moveState.NO_MOVE;   				
     			}
     			case 8:
     			{
-    				return false;    			
+    				return moveState.NO_MOVE;    			
     			}
     			
     			default:
@@ -83,7 +117,7 @@ abstract class MovingObject extends RObject
     		switch(playMap.getCells(currentTile+1)[ay][0].getObject().getDisplay())
     		{
     			case '#':
-    				return false;
+    				return moveState.NO_MOVE;
     			case ' ':
     			{
     				playMap.getCells(currentTile)[ay][ax].removeObject();			
@@ -94,10 +128,10 @@ abstract class MovingObject extends RObject
     				//ay remains the same
     			
     			 	playMap.getCells(currentTile)[ay][ax].addObject(this);
-    				return true;
+    				return moveState.MOVE;
     			}
     			default:
-    				return false;
+    				return moveState.ATTACK;
     		}
     		
     	}
@@ -107,7 +141,7 @@ abstract class MovingObject extends RObject
     		switch(playMap.getCells(currentTile)[ay][ax+1].getObject().getDisplay())
     		{
     			case '#':
-    				return false;
+    				return moveState.NO_MOVE;
     			case ' ':
     			{
     				//update ax 
@@ -115,10 +149,10 @@ abstract class MovingObject extends RObject
     				ax += 1;
     				 playMap.getCells(currentTile)[ay][ax].addObject(this);
     				//ay remains the same
-    				return true;
+    				return moveState.MOVE;
     			}
     			default:
-    				return false;
+    				return moveState.ATTACK;
     		}
 	
     	}
@@ -126,7 +160,7 @@ abstract class MovingObject extends RObject
     }
     
 
-    public boolean moveLeft()
+    public moveState moveLeft()
     {
     	//the moving entity has attempted to step into a new tile
     	if(ax-1 == -1)
@@ -140,16 +174,16 @@ abstract class MovingObject extends RObject
     		{
     			case 0:
     			{
-    				return false;
+    				return moveState.NO_MOVE;
     			}
     			
     			case 3:
     			{
-    				return false;   				
+    				return moveState.NO_MOVE;   				
     			}
     			case 6:
     			{
-    				return false;    			
+    				return moveState.NO_MOVE;    			
     			}
     			
     			default:
@@ -161,7 +195,7 @@ abstract class MovingObject extends RObject
     		switch(playMap.getCells(currentTile-1)[ay][playMap.getCells(currentTile).length-1].getObject().getDisplay())
     		{
     			case '#':
-    				return false;
+    				return moveState.NO_MOVE;
     			case ' ':
     			{
     				playMap.getCells(currentTile)[ay][ax].removeObject();			
@@ -172,10 +206,10 @@ abstract class MovingObject extends RObject
     				//ay remains the same
     			
     			 	playMap.getCells(currentTile)[ay][ax].addObject(this);
-    				return true;
+    				return moveState.MOVE;
     			}
     			default:
-    				return false;
+    				return moveState.ATTACK;
     		}
     		
     	}
@@ -186,7 +220,7 @@ abstract class MovingObject extends RObject
     		switch(playMap.getCells(currentTile)[ay][ax-1].getObject().getDisplay())
     		{
     			case '#':
-    				return false;
+    				return moveState.NO_MOVE;
     			case ' ':
     			{
     				//update ax 
@@ -194,10 +228,10 @@ abstract class MovingObject extends RObject
     				ax -= 1;
     			 	playMap.getCells(currentTile)[ay][ax].addObject(this);
     				//ay remains the same
-    				return true;
+    				return moveState.MOVE;
     			}
     			default:
-    				return false;
+    				return moveState.ATTACK;
     		}
     		
     		
@@ -206,7 +240,7 @@ abstract class MovingObject extends RObject
     }
     
 
-    public boolean moveUp()
+    public moveState moveUp()
     {
     	//the moving entity has attempted to step into a new tile
     	if(ay-1 == -1)
@@ -220,16 +254,16 @@ abstract class MovingObject extends RObject
     		{
     			case 0:
     			{
-    				return false;
+    				return moveState.NO_MOVE;
     			}
     			
     			case 1:
     			{
-    				return false;   				
+    				return moveState.NO_MOVE;   				
     			}
     			case 2:
     			{
-    				return false;    			
+    				return moveState.NO_MOVE;    			
     			}
     			
     			default:
@@ -241,7 +275,7 @@ abstract class MovingObject extends RObject
     		switch(playMap.getCells(currentTile-3)[playMap.getCells(currentTile).length-1][ax].getObject().getDisplay())
     		{
     			case '#':
-    				return false;
+    				return moveState.NO_MOVE;
     			case ' ':
     			{
     				//since we ae moving to a new tile, update the current tile
@@ -253,10 +287,10 @@ abstract class MovingObject extends RObject
     			
     				playMap.getCells(currentTile)[ay][ax].addObject(this);
     								
-    				return true;
+    				return moveState.MOVE;
     			}
     			default:
-    				return false;
+    				return moveState.ATTACK;
     		}
     		
     	}
@@ -266,7 +300,7 @@ abstract class MovingObject extends RObject
     		switch(playMap.getCells(currentTile)[ay-1][ax].getObject().getDisplay())
     		{
     			case '#':
-    				return false;
+    				return moveState.NO_MOVE;
     			case ' ':
     			{
     				//update ax 
@@ -274,18 +308,18 @@ abstract class MovingObject extends RObject
     				ay -= 1;
     			 	playMap.getCells(currentTile)[ay][ax].addObject(this);
     				//ay remains the same
-    				return true;
+    				return moveState.MOVE;
     			}
     			default:
-    				return false;
+    				return moveState.ATTACK;
     		}
 
     	}
 
     }
-    
 
-     public boolean moveDown()
+
+     public moveState moveDown()
     {
     	//the moving entity has attempted to step into a new tile
     	if(ay+1 == playMap.getCells(currentTile).length)
@@ -299,16 +333,16 @@ abstract class MovingObject extends RObject
     		{
     			case 6:
     			{
-    				return false;
+    				return moveState.NO_MOVE;
     			}
     			
     			case 7:
     			{
-    				return false;   				
+    				return moveState.NO_MOVE;   				
     			}
     			case 8:
     			{
-    				return false;    			
+    				return moveState.NO_MOVE;    			
     			}
     			
     			default:
@@ -321,7 +355,7 @@ abstract class MovingObject extends RObject
     		switch(playMap.getCells(currentTile+3)[0][ax].getObject().getDisplay())
     		{
     			case '#':
-    				return false;
+    				return moveState.NO_MOVE;
     			case ' ':
     			{
     				System.out.println("here");
@@ -333,10 +367,10 @@ abstract class MovingObject extends RObject
     			  			
     				playMap.getCells(currentTile)[ay][ax].addObject(this);
     				//ax remains the same
-    				return true;
+    				return moveState.MOVE;
     			}
     			default:
-    				return false;
+    				return moveState.ATTACK;
     		}
     		
     	}
@@ -346,7 +380,7 @@ abstract class MovingObject extends RObject
     		switch(playMap.getCells(currentTile)[ay+1][ax].getObject().getDisplay())
     		{
     			case '#':
-    				return false;
+    				return moveState.NO_MOVE;
     			case ' ':
     			{
     				//update ax 
@@ -354,10 +388,10 @@ abstract class MovingObject extends RObject
     				ay += 1;
     			 	playMap.getCells(currentTile)[ay][ax].addObject(this);
     				//ay remains the same
-    				return true;
+    				return moveState.MOVE;
     			}
     			default:
-    				return false;
+    				return moveState.ATTACK;
     		}
     		
     	}

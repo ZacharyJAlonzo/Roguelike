@@ -23,4 +23,7 @@ public class Path extends RObject
     	return display;
     }
     
+    public void Tick()
+    {
+    }  
 }

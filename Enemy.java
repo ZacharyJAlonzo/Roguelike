@@ -26,8 +26,16 @@ public class Enemy extends MovingObject
     	isAgro = false;
     	agroEnemy = null;
     	
-    	axNew = ax;
-    	ayNew = ay;
+		axNew = 0;
+		ayNew = 0;
+    	
+    	totalHP = 20;
+    	currentHP = 20;
+    }
+    
+    public void attack(MovingObject target)
+    {
+    	target.takeDamage(10);
     }
     
     public void Tick()
@@ -51,7 +59,7 @@ public class Enemy extends MovingObject
     			if(nextMove != null)
     			{
     				//move to the new tile
-    				boolean succeed = false;
+    				moveState succeed = moveState.NO_MOVE;
     				if(axNew > ax)
     				{
     					succeed = moveRight();
@@ -69,19 +77,39 @@ public class Enemy extends MovingObject
     					succeed = moveUp();
     				}
     				
-    				if(succeed)
-    				{	
-    					//we are done, end the turn for the AI.
-    					didTick = true;
-    					return;
-    				}
-    				else
+    				switch(succeed)
     				{
-    					//the move failed for some reason.
-    					System.out.println("AI failed");
-    					return;
+    					case NO_MOVE:
+    					{
+    						didTick = true;
+    						break;
+    					}
+    					case MOVE:
+    					{
+    						//we are done, end the turn for the AI.
+    						didTick = true;
+    						return;
+    					}
+    					case ATTACK:
+    					{
+    						System.out.println("enemy attack");
+    						if(((MovingObject)agroEnemy).isDead())
+    						{
+    							agroEnemy = null;
+    							isAgro = false;
+    							return;
+    						}
+    						if(agroEnemy != null)
+    						attack((MovingObject)agroEnemy);
+    						didTick = true;
+    						return;
+    					}
+    					default:
+    					{
+    						System.out.println("AI failed");
+    						return;
+    					}
     				}
-    			
     			}
     		}
     		
@@ -89,16 +117,15 @@ public class Enemy extends MovingObject
     	//the enemy is already agro
     	else
     	{
-    			System.out.println("enemy is agro");
     			Cell nextMove = findRouteToHostile(agroEnemy);
+    		
     			didTick = true;
     			//move to that tile
     			if(nextMove != null)
     			{
-    				
-   
-    				//move to the new tile
-    				boolean succeed = false;
+    			//move to the new tile
+    				System.out.println(ayNew+" "+axNew+" "+nextMove.getObject().getDisplay());
+    				moveState succeed = moveState.NO_MOVE;
     				if(axNew > ax)
     				{
     					succeed = moveRight();
@@ -111,32 +138,46 @@ public class Enemy extends MovingObject
     				{
     					succeed = moveDown();
     				}
-    				if(ayNew < ay)
+    				if(ayNew < ay) 
     				{
     					succeed = moveUp();
     				}
-    				else System.out.println("error");
     				
-    				if(succeed)
+    				switch(succeed)
     				{
-    					//update location
-    					//ax = axNew;
-    					//ay = ayNew;
-    					//we are done, end the turn for the AI.
-    					didTick = true;
-    					return;
+    					case NO_MOVE:
+    					{
+    						didTick = true;
+    						break;
+    					}
+    					case MOVE:
+    					{
+    						//we are done, end the turn for the AI.
+    						didTick = true;
+    						return;
+    					}
+    					case ATTACK:
+    					{
+    						System.out.println("enemy attack");
+    						if(((MovingObject)agroEnemy).isDead())
+    						{
+    							isAgro = false;
+    							agroEnemy = null;
+    							return;
+    						}
+    						if(agroEnemy != null)
+    						attack((MovingObject)agroEnemy);
+    						didTick = true;
+    						return;
+    					}
+    					default:
+    					{
+    						System.out.println("AI failed");
+    						return;
+    					}
     				}
-    				else
-    				{
-    					//the move failed for some reason.
-    					System.out.println("AI failed");
-    					return;
-    				}
-    			
     			}
-    	}
-    	
-    	
+    	}	
     }
     
     //scans a sightRange x sightRange area around the enemy.
@@ -397,7 +438,7 @@ public class Enemy extends MovingObject
 			{
 				for(int k = 0; k < size; k++)
 				{
-					if(lengthMap[i][k] == distance-lengthMapBack[i][k] && lengthMapBack[i][k] > 0 && lengthMap[i][k] > 0)
+					if(lengthMap[i][k] == distance-lengthMapBack[i][k] && lengthMapBack[i][k] >= 0 && lengthMap[i][k] > 0)
 					{
 						 
 						 nextMove = playMap.getCells(currentTile)[i][k];
